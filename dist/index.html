@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solana Bot Interface</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background-color: #d3d3d3;
+      background-image: url('solana-background.jpg');
+      background-size: cover;
+      background-position: center;
+      height: 98vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    #header {
+      font-size: 48px;
+      font-weight: bold;
+      margin: 20px 0;
+      text-align: center;
+    }
+    #mainContent {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 15px;
+      overflow: auto;
+      flex-grow: 1;
+    }
+    #walletTokenDetails {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    #walletDetails, #buttons {
+      display: flex;
+      flex-direction: column;
+      margin: 10px;
+      text-align: left;
+    }
+    #walletDetails {
+      flex: 1;
+    }
+    label {
+      margin: 5px 0;
+    }
+    input[type='text'], input[type='password'], input[type='number'] {
+      width: 100%;
+      margin: 5px 0;
+    }
+    button, .toggle-button {
+      width: 140px;
+      background-color: #660080;
+      color: white;
+      border: 1px solid black;
+      border-radius: 0;
+      padding: 10px;
+      cursor: pointer;
+      margin: 5px;
+      box-shadow: 3px 3px 5px #666;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+    button:hover, .toggle-button:hover {
+      background-color: #41025a;
+      box-shadow: 5px 5px 10px #333;
+    }
+    #actions {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+      gap: 10px;
+      width: 50%;
+    }
+    #consoleArea {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      width: 100%;
+      margin-top: 20px;
+    }
+    #console {
+      background-color: black;
+      color: white;
+      padding: 10px;
+      height: 800px;
+      width: 100%;
+      overflow-y: auto;
+      font-family: monospace;
+      border: 1px solid white;
+    }
+    .card {
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      box-shadow: 3px 3px 5px #666;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #profitLoss {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 20px 0;
+      color: red;
+    }
+    #tradingParameters {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin-top: 20px;
+    }
+    #tradingParameters label, #tradingParameters input, #tradingParameters select {
+      margin: 5px 0;
+      width: 100%;
+    }
+    #tradingParameters button {
+      align-self: flex-start;
+      margin: 5px 0;
+      width: auto;
+    }
+    .toggle-button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 10px;
+      background-color: #e0e0e0;
+      color: black;
+    }
+    #spinigSection {
+      background-color: #000;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 3px 3px 5px #666;
+      width: 25%;
+      height: 800px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">Solana Snipe Bot</div>
+  <div id="status">Connecting...</div>
+  <div id="mainContent">
+    <div id="wallet-info">
+      <h2>Wallet Information</h2>
+      <label for="apikey">Private Apikey:</label>
+      <input type="text" id="apikey" name="apikey" placeholder="Enter private apikey" />
+      <label for="wallet-address">Address:</label>
+      <input type="text" id="wallet-address" name="wallet-address" placeholder="Enter wallet address" />
+      <label for="token">Token:</label>
+      <input type="text" id="token" name="token" placeholder="Enter token" />
+    </div>
+    <div id="consoleArea">
+      <div id="console"></div>
+      <div id="spinigSection">
+        <div id="profitLoss">
+          <label for="profitLossInput">Current Loss: </label>
+          <input type="text" id="profitLossInput" value="$0.00" readonly />
+        </div>
+        <div id="tradingParameters">
+          <form id="envForm">
+            <label for="tokenSymbol">Token Symbol</label>
+            <select id="tokenSymbol" name="TOKEN_SYMB" required>
+              <option value="WSOL" selected>WSOL</option>
+              <option value="USDC">USDC</option>
+            </select>
+            <label for="minPoolSize">Min Pool Size</label>
+            <input type="number" id="minPoolSize" name="MIN_POOL_SIZE" value="5" required />
+            <label for="maxPoolSize">Max Pool Size</label>
+            <input type="number" id="maxPoolSize" name="MAX_POOL_SIZE" value="999" required />
+            <label for="buyAmount">Buy Amount</label>
+            <input type="number" id="buyAmount" name="BUY_AMOUNT" value="0.01" step="0.01" required />
+            <label for="useSnipedList">Use Sniped List</label>
+            <input type="checkbox" id="useSnipedList" name="USE_SNIPEDLIST" />
+            <label for="snipeListRefreshInterval">Snipe List Refresh Interval</label>
+            <input type="number" id="snipeListRefreshInterval" name="SNIPE_LIST_REFRESH_INTERVAL" value="30000" required />
+            <label for="mintIsRenounced">Mint is Renounced</label>
+            <input type="checkbox" id="mintIsRenounced" name="MINT_IS_RENOUNCED" checked />
+            <label for="autoSell">Auto Sell</label>
+            <input type="checkbox" id="autoSell" name="AUTO_SELL" checked />
+            <label for="autoSellDelay">Auto Sell Delay</label>
+            <input type="number" id="autoSellDelay" name="AUTO_SELL_DELAY" value="20000" required />
+            <label for="maxSellRetries">Max Sell Retries</label>
+            <input type="number" id="maxSellRetries" name="MAX_SELL_RETRIES" value="5" required />
+            <label for="takeProfit">Take Profit</label>
+            <input type="number" id="takeProfit" name="TAKE_PROFIT" value="30" required />
+            <label for="stopLoss">Stop Loss</label>
+            <input type="number" id="stopLoss" name="STOP_LOSS" value="50" required />
+            <label for="enableBuy">Enable Buy</label>
+            <input type="checkbox" id="enableBuy" name="ENABLE_BUY" checked />
+            <button type="submit">Update</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div id="actions">
+      <button id="start-bot" onclick="snipe()">Start Sniping</button>
+      <button id="stop-bot" onclick="stopSniping()">Stop Sniping</button>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('Connected to server');
+      socket.emit('log', { level: 'info', message: 'Client connected and listening for events' });
+    });
+
+    socket.on('log', (message) => {
+      const consoleDiv = document.getElementById('console');
+      const logElement = document.createElement('div');
+      logElement.className = 'card';
+      logElement.textContent = `${message.level}: ${message.message}`;
+      consoleDiv.appendChild(logElement);
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    });
+
+    document.getElementById('envForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const data = Object.fromEntries(formData.entries());
+
+      // Convertir valores de checkbox a booleanos
+      data.USE_SNIPEDLIST = document.getElementById('useSnipedList').checked;
+      data.MINT_IS_RENOUNCED = document.getElementById('mintIsRenounced').checked;
+      data.AUTO_SELL = document.getElementById('autoSell').checked;
+      data.ENABLE_BUY = document.getElementById('enableBuy').checked;
+
+      try {
+        const response = await fetch('/api/update-bot-config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('Bot configuration updated successfully');
+          // Emitir los datos actualizados a través de Socket.IO
+          socket.emit('log', { level: 'info', message: `Configuration updated: ${JSON.stringify(data, null, 2)}` });
+        } else {
+          alert('Failed to update bot configuration');
+        }
+      } catch (error) {
+        console.error('Error updating bot configuration:', error);
+      }
+    });
+
+    // Emitir un mensaje de prueba cuando se cargue la página
+    socket.emit('log', { level: 'info', message: 'Client connected and listening for events' });
+
+    function snipe() {
+      // Implement your sniping logic here
+    }
+
+    function stopSniping() {
+      // Implement your logic to stop sniping here
+    }
+
+    async function fetchWalletInfo() {
+      try {
+        const response = await fetch('/api/wallet-info');
+        const data = await response.json();
+        document.getElementById('wallet-address').value = data.address;
+        document.getElementById('apikey').value = data.apikey;
+        document.getElementById('token').value = data.token;
+      } catch (error) {
+        console.error('Error fetching wallet info:', error);
+      }
+    }
+
+    fetchWalletInfo();
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
